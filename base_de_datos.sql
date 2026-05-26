@@ -37,3 +37,9 @@ SELECT * FROM productos WHERE id = 2;
 UPDATE productos SET precio = 12.00 WHERE id = 2;
 
 DELETE FROM productos WHERE id = 3;
+
+SELECT p.id, p.nombre_producto, c.nombre_categoria, p.stock, p.precio FROM productos p
+INNER JOIN categorias c ON p.categoria_id = c.id;
+
+SELECT p.id, p.nombre_producto, c.nombre_categoria, p.stock, p.precio FROM productos p
+INNER JOIN categorias c ON p.categoria_id = c.id WHERE c.nombre_categoria = 'Accesorios';
