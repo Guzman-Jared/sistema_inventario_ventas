@@ -43,3 +43,14 @@ INNER JOIN categorias c ON p.categoria_id = c.id;
 
 SELECT p.id, p.nombre_producto, c.nombre_categoria, p.stock, p.precio FROM productos p
 INNER JOIN categorias c ON p.categoria_id = c.id WHERE c.nombre_categoria = 'Accesorios';
+
+SELECT COUNT(id) AS total_productos_catalogo FROM productos;
+
+SELECT SUM(precio * stock) AS valor_monetario_inventario FROM productos;
+
+SELECT MAX(precio) AS producto_mas_caro FROM productos;
+
+SELECT c.nombre_categoria, SUM(p.stock) AS existencias_totales
+FROM productos p
+INNER JOIN categorias c ON p.categoria_id = c.id
+GROUP BY c.nombre_categoria;
