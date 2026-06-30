@@ -40,6 +40,14 @@ $resultado = $conn->query($sql);
             display: inline-block;
         }
         .btn-eliminar:hover { background-color: #b91c1c; }
+
+        /* ¡NUEVO! Estilo para el botón de editar de la Guía 18 */
+        .btn-editar {
+            background-color: #f59e0b; color: white; padding: 6px 12px; 
+            text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: bold; 
+            margin-right: 5px; display: inline-block;
+        }
+        .btn-editar:hover { background-color: #d97706; }
     </style>
 </head>
 <body>
@@ -62,7 +70,8 @@ $resultado = $conn->query($sql);
                 <th>Categoría</th>
                 <th>Stock</th>
                 <th>Precio Unitario</th>
-                <th>Acciones</th> </tr>
+                <th>Acciones</th>
+            </tr>
         </thead>
         <tbody>
         <?php
@@ -78,11 +87,8 @@ $resultado = $conn->query($sql);
                     <td> $<?php echo number_format($fila['precio'], 2); ?> </td>
                     
                     <td>
-                        <a href="eliminar_producto.php?id=<?php echo $fila['id']; ?>"
-                           class="btn-eliminar"
-                           onclick="return confirm('¿Estás absolutamente seguro de eliminar el producto: <?php echo $fila['nombre_producto']; ?>?');">
-                           Eliminar
-                        </a>
+                        <a href="editar_producto.php?id=<?php echo $fila['id']; ?>" class="btn-editar">Editar</a>
+                        <a href="eliminar_producto.php?id=<?php echo $fila['id']; ?>" class="btn-eliminar" onclick="return confirm('¿Seguro?');">Eliminar</a>
                     </td>
                 </tr>
         <?php
