@@ -7,12 +7,36 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once 'conexion.php';
 
-$sql = "SELECT p.id, p.nombre_producto, c.nombre_categoria, p.stock, p.precio
-        FROM productos p
-        INNER JOIN categorias c ON p.categoria_id = c.id
-        ORDER BY p.id ASC";
+// 1. Verificamos si el usuario envió algo por la barra de búsqueda
+$busqueda = isset($_GET['buscar']) ? trim($_GET['buscar']) : '';
 
-$resultado = $conn->query($sql);
+if ($busqueda != '') {
+    // 2. Si hay búsqueda, preparamos la consulta con LIKE para nombre o categoría
+    $sql = "SELECT p.id, p.nombre_producto, c.nombre_categoria, p.stock, p.precio 
+            FROM productos p 
+            INNER JOIN categorias c ON p.categoria_id = c.id 
+            WHERE p.nombre_producto LIKE ? OR c.nombre_categoria LIKE ? 
+            ORDER BY p.id ASC";
+            
+    $stmt = $conn->prepare($sql);
+    
+    // Le pegamos los comodines % al texto del usuario
+    $param_busqueda = "%" . $busqueda . "%";
+    
+    // Vinculamos el parámetro dos veces (una para el nombre, otra para la categoría)
+    $stmt->bind_param("ss", $param_busqueda, $param_busqueda);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+    $stmt->close();
+} else {
+    // 3. Si la barra de búsqueda está vacía, mostramos el inventario normal completo
+    $sql = "SELECT p.id, p.nombre_producto, c.nombre_categoria, p.stock, p.precio 
+            FROM productos p 
+            INNER JOIN categorias c ON p.categoria_id = c.id 
+            ORDER BY p.id ASC";
+            
+    $resultado = $conn->query($sql);
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +65,6 @@ $resultado = $conn->query($sql);
         }
         .btn-eliminar:hover { background-color: #b91c1c; }
 
-        /* ¡NUEVO! Estilo para el botón de editar de la Guía 18 */
         .btn-editar {
             background-color: #f59e0b; color: white; padding: 6px 12px; 
             text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: bold; 
@@ -55,11 +78,21 @@ $resultado = $conn->query($sql);
 <div class="container">
     <div class="header">
         <h2>Catálogo de Inventario</h2>
-        <a href="nuevo_producto.php" style="background: #3b82f6; color: white; padding: 10px; text-decoration: none; border-radius: 5px;">+ Nuevo Producto</a>
         <div>
-            <span>Usuario: <strong><?php echo $_SESSION['nombre']; ?></strong></span>
+            <span>Usuario: <strong><?php echo htmlspecialchars($_SESSION['nombre']); ?></strong></span>
             <a href="logout.php" class="btn-salir">Cerrar Sesión</a>
         </div>
+    </div>
+
+    <!-- Formulario de Búsqueda y Botón de Nuevo Producto -->
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="nuevo_producto.php" style="background: #3b82f6; color: white; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold;">+ Nuevo Producto</a>
+        
+        <form method="GET" style="display: flex; gap: 10px;">
+            <input type="text" name="buscar" placeholder="Buscar producto o categoría..." value="<?php echo isset($_GET['buscar']) ? htmlspecialchars($_GET['buscar']) : ''; ?>" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 250px;">
+            <button type="submit" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Buscar</button>
+            <a href="inventario.php" style="background: #64748b; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">Limpiar</a>
+        </form>
     </div>
 
     <table>
@@ -75,14 +108,14 @@ $resultado = $conn->query($sql);
         </thead>
         <tbody>
         <?php
-        if ($resultado->num_rows > 0) {
+        if ($resultado && $resultado->num_rows > 0) {
             while($fila = $resultado->fetch_assoc()) {
                 $claseStock = ($fila['stock'] < 10) ? 'stock-bajo' : '';
         ?>
                 <tr>
                     <td> <?php echo $fila['id']; ?> </td>
-                    <td> <?php echo $fila['nombre_producto']; ?> </td>
-                    <td> <?php echo $fila['nombre_categoria']; ?> </td>
+                    <td> <?php echo htmlspecialchars($fila['nombre_producto']); ?> </td>
+                    <td> <?php echo htmlspecialchars($fila['nombre_categoria']); ?> </td>
                     <td class="<?php echo $claseStock; ?>"> <?php echo $fila['stock']; ?> unds. </td>
                     <td> $<?php echo number_format($fila['precio'], 2); ?> </td>
                     
@@ -96,7 +129,7 @@ $resultado = $conn->query($sql);
         } else {
         ?>
             <tr>
-                <td colspan="6" style="text-align:center;">No hay productos registrados en el sistema.</td>
+                <td colspan="6" style="text-align:center;">No se encontraron productos que coincidan con la búsqueda.</td>
             </tr>
         <?php } ?>
         </tbody>
@@ -104,7 +137,9 @@ $resultado = $conn->query($sql);
 </div>
 
 <?php
-$resultado->free();
+if ($resultado) {
+    $resultado->free();
+}
 ?>
 
 </body>
