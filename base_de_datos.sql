@@ -1,25 +1,25 @@
 USE sistema_inventario;
 
 CREATE TABLE usuarios (
-id INT AUTO_INCREMENT PRIMARY KEY,
-nombre_completo VARCHAR(100) NOT NULL,
-usuario VARCHAR(50) NOT NULL UNIQUE,
-password VARCHAR(255) NOT NULL,
-rol VARCHAR(20) NOT NULL
+    usuario_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_completo VARCHAR(150) NOT NULL,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE categorias (
-id INT AUTO_INCREMENT PRIMARY KEY,
-nombre_categoria VARCHAR(50) NOT NULL UNIQUE
+    categoria_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_categoria VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE productos (
-id INT AUTO_INCREMENT PRIMARY KEY,
-nombre_producto VARCHAR(100) NOT NULL,
-categoria_id INT NOT NULL,
-stock INT NOT NULL,
-precio DECIMAL(10, 2) NOT NULL,
-FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+    producto_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_producto VARCHAR(150) NOT NULL,
+    categoria_id INT NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    precio DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(categoria_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 INSERT INTO categorias (nombre_categoria) VALUES
@@ -56,8 +56,8 @@ INNER JOIN categorias c ON p.categoria_id = c.id
 GROUP BY c.nombre_categoria;
 -- 1. Crear la tabla de proveedores
 CREATE TABLE proveedores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_empresa VARCHAR(100) NOT NULL,
+    proveedor_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_empresa VARCHAR(150) NOT NULL,
     contacto VARCHAR(100),
     telefono VARCHAR(20),
     direccion TEXT
@@ -67,3 +67,26 @@ CREATE TABLE proveedores (
 INSERT INTO proveedores (nombre_empresa, contacto, telefono, direccion) VALUES
 ('Tech Data El Salvador', 'Juan Pérez', '2255-8899', 'San Salvador, Col. Escalón'),
 ('Distribuidora de Papel', 'María Gómez', '2666-4433', 'San Miguel, Centro');
+
+
+-- 1. Tabla Maestra de Compras (Cabecera de Factura)
+CREATE TABLE compras (
+id INT AUTO_INCREMENT PRIMARY KEY,
+proveedor_id INT NOT NULL,
+usuario_id INT NOT NULL,
+fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+total DECIMAL(10, 2) NOT NULL,
+FOREIGN KEY (proveedor_id) REFERENCES proveedores(id),
+FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- 2. Tabla Detalle de Compras (Líneas de los productos ingresados)
+CREATE TABLE detalle_compras (
+id INT AUTO_INCREMENT PRIMARY KEY,
+compra_id INT NOT NULL,
+producto_id INT NOT NULL,
+cantidad INT NOT NULL,
+precio_compra DECIMAL(10, 2) NOT NULL,
+FOREIGN KEY (compra_id) REFERENCES compras(id),
+FOREIGN KEY (producto_id) REFERENCES productos(id)
+);
