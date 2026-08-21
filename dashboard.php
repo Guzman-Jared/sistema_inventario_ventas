@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 require_once 'conexion.php';
 
 // --- MÉTRICA 1: Total de Productos en Catálogo ---
-$res_total = $conn->query("SELECT COUNT(id) AS cantidad FROM productos");
+$res_total = $conn->query("SELECT COUNT(producto_id) AS cantidad FROM productos");
 $fila_total = $res_total->fetch_assoc();
 $total_productos = $fila_total['cantidad'];
 
@@ -124,7 +124,7 @@ $precio_maximo = $fila_caro['max_precio'] ? $fila_caro['max_precio'] : 0;
         <h1>Bienvenido, <?php echo $_SESSION['nombre']; ?>
             <span style="font-size: 14px; color: #94a3b8;">(Rol: <?php echo $_SESSION['rol']; ?>)</span>
         </h1>
-        <a href="logout.php" class="btn-salir">Cerrar Sesión</a>
+        <a href="logout.php" class="btn-salir">Cerrar Sesión ➜]</a>
     </div>
 
     <div class="tarjetas-container">
@@ -152,6 +152,8 @@ $precio_maximo = $fila_caro['max_precio'] ? $fila_caro['max_precio'] : 0;
         <a href="#" class="modulo" style="background:#64748b;">🛒Punto de Venta (Próximamente)</a>
         <a href="proveedores.php" class="modulo" style="background:#8b5cf6;">🚚 Módulo de
 Proveedores</a>
+<a href="nueva_compra.php" class="modulo" style="background:#10b981;">📥 Registrar
+Ingreso de Mercadería</a>
     </div>
     
 </body>
