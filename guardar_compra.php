@@ -63,7 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt2->execute();
         $stmt2->close();
 
-        // --- FASE 3: ACTUALIZAR STOCK EN PRODUCTOS ---
+        // --- FASE 3: ACTUALIZAR EL INVENTARIO FÍSICO ---
+        // Se utiliza producto_id para coincidir exactamente con la estructura de tu base de datos
         $sql_stock = "UPDATE productos SET stock = stock + ? WHERE producto_id = ?";
         $stmt3 = $conn->prepare($sql_stock);
         $stmt3->bind_param("ii", $cantidad, $producto_id);
@@ -72,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $conn->commit();
 
-        header("Location: inventario.php");
+        // Redirección al dashboard según las indicaciones de la guía
+        header("Location: dashboard.php");
         exit();
 
     } catch (mysqli_sql_exception $e) {
