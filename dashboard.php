@@ -154,6 +154,7 @@ $precio_maximo = $fila_caro['max_precio'] ? $fila_caro['max_precio'] : 0;
 Proveedores</a>
 <a href="nueva_compra.php" class="modulo" style="background:#10b981;">📥 Registrar
 Ingreso de Mercadería</a>
+<a href="historial_compras.php" class="modulo">Historial de Compras</a>
     </div>
     
 </body>
